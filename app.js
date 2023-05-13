@@ -5,12 +5,15 @@ const session = require('express-session')
 const flash = require('connect-flash')
 
 const routes = require('./routes')
+const usePassport = require('./config/passport')
 
 const app = express()
-const PORT = 3000
-// 載入設定檔，要寫在 express-session 以後
-const usePassport = require('./config/passport')
-usePassport(app)
+const PORT = process.env.PORT || 3000
+
+if (process.env.NODE_ENV !== 'production') {
+  require('dotenv').config()
+}
+
 
 app.engine('hbs', exphbs({ defaultLayout: 'main', extname: '.hbs' })) // 設定main.hbs主頁, 渲染樣板的檔案格式為.hbs
 app.set('view engine', 'hbs')
@@ -23,7 +26,7 @@ app.use(session({
   saveUninitialized: true
 }))
 
-// 呼叫 Passport 函式並傳入 app，這條要寫在路由之前
+// 載入設定檔，要寫在 express-session, use session 以後
 usePassport(app)
 
 // req.user 是在反序列化的時候，取出的 user 資訊，之後會放在 req.user 裡以供後續使用
